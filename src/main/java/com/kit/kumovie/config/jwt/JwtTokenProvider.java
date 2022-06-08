@@ -1,5 +1,8 @@
 package com.kit.kumovie.config.jwt;
 
+import com.kit.kumovie.domain.Member;
+import com.kit.kumovie.domain.Role;
+import com.kit.kumovie.domain.repository.MemberRepository;
 import com.kit.kumovie.service.AuthService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -7,17 +10,19 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -26,10 +31,10 @@ public class JwtTokenProvider {
     @Value("${external.jwt.secret}")
     private String secretKey;
 
-    private final AuthService authService;
-
+    private final UserDetailsService userDetailsService;
     private final Long tokenExpirationTime = 1000L * 60 * 30;
     private final Long refreshTokenExpirationTime = 1000L * 60 * 60 * 24;
+    private final MemberRepository memberRepository;
 
     @PostConstruct
     protected void init() {
@@ -40,7 +45,7 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String createToken(String userPk, List<String> roles) { // 최초 로그인시 사용
+    public String createToken(String userPk, Role roles) { // 최초 로그인시 사용
         Claims claims = Jwts.claims().setSubject(userPk);
         claims.put("roles", roles);
         Date now = new Date();
@@ -64,7 +69,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken(String userPk, List<String> roles) {
+    public String createRefreshToken(String userPk, Role roles) {
         Claims claims = Jwts.claims().setSubject(userPk);
         claims.put("roles", roles);
         Date now = new Date();
@@ -74,7 +79,9 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now.getTime() + refreshTokenExpirationTime))
                 .signWith(getSignKey())
                 .compact();
-        authService.updateRefreshToken(userPk, compact);
+        Member member = memberRepository.findById(Long.valueOf(userPk)).orElseThrow(() -> new RuntimeException("fail to update refresh token"));
+        member.setRefreshToken(compact);
+        memberRepository.save(member);
         return compact;
     }
 
@@ -87,7 +94,7 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = authService.loadUserByUsername(getUserPkFromToken(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getUserPkFromToken(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
@@ -112,7 +119,8 @@ public class JwtTokenProvider {
         try {
             Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(refreshToken);
             String userPk = claimsJws.getBody().getSubject();
-            return authService.validateRefreshToken(userPk, refreshToken);
+            Member member = memberRepository.findById(Long.valueOf(userPk)).orElseThrow(() -> new RuntimeException("fail to find member"));
+            return member.getRefreshToken().equals(refreshToken);
         } catch (Exception e) {
             return false;
         }
