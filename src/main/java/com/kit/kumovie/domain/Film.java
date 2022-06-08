@@ -45,4 +45,6 @@ public class Film extends BaseTimeEntity {
     @Column(name = "price", nullable = false, precision = 5, scale = 1)
     private BigDecimal price;
 
+    @Column(name = "ticket_count", nullable = false)
+    private Integer ticketCount;
 }
