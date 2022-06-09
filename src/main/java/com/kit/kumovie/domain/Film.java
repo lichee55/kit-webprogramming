@@ -45,6 +45,10 @@ public class Film extends BaseTimeEntity {
     @Column(name = "price", nullable = false, precision = 5, scale = 1)
     private BigDecimal price;
 
-    @Column(name = "ticket_count", nullable = false)
-    private Integer ticketCount;
+    @Column(name = "seat_count", nullable = false)
+    private Integer seatCount; // 현재 발권되었고 아직 상영하지 않은 예매 수
+
+    @Column(name = "thumbnail", nullable = false)
+    private String thumbnail;
+
 }
