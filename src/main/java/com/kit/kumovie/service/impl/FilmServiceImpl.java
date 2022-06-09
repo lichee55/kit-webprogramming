@@ -14,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Transactional(readOnly = true)
 @Service
@@ -68,7 +66,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     private Long totalTicketCount() {
-        LocalDateTime now = LocalDateTime.now();
-        return ticketRepository.getTotalTicketCount(now.toLocalDate(), now.toLocalTime());
+        return ticketRepository.getTotalTicketCount(LocalDateTime.now());
     }
 }

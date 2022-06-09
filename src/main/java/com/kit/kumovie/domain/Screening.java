@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "screenings")
@@ -22,14 +21,11 @@ public class Screening extends BaseTimeEntity {
     @Column(name = "screening_id")
     private Long id;
 
-    @Column(name = "screening_date", nullable = false)
-    private LocalDate screeningDate;
-
     @Column(name = "start_time", nullable = false)
-    private LocalTime startTime;
+    private LocalDateTime startTime;
 
     @Column(name = "end_time", nullable = false)
-    private LocalTime endTime;
+    private LocalDateTime endTime;
 
     @Column(name = "screening_price", nullable = false, precision = 5, scale = 1)
     private BigDecimal screeningPrice;
@@ -38,11 +34,14 @@ public class Screening extends BaseTimeEntity {
     @Column(name = "discount_type", nullable = false)
     private DiscountType discountType;
 
-    @Column(name = "discount_rate", precision = 5, scale = 2)
-    private BigDecimal discountRate;
+    @Column(name = "discount_value", precision = 5, scale = 2)
+    private BigDecimal discountValue;
 
     @Column(name = "seat_status", nullable = false)
     private String seatStatus; // 1,0,1,1,0,0,0,0,0,0,0,1,1,1,1,0,0, ... (count = theater의 row * col)
+
+    @Column(name = "rest_seat_count", nullable = false)
+    private Integer restSeatCount;
 
     @ManyToOne
     @JoinColumn(name = "theater_id", nullable = false)
