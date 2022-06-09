@@ -51,5 +51,11 @@ public class Screening extends BaseTimeEntity {
     @JoinColumn(name = "film_id", nullable = false)
     private Film film;
 
+    public void setSeatStatus(String seatStatus) {
+        this.seatStatus = seatStatus;
+    }
 
+    public void setRestSeatCount(Integer restSeatCount) {
+        this.restSeatCount = restSeatCount;
+    }
 }

@@ -23,7 +23,7 @@ public class ScreeningServiceImpl implements ScreeningService {
     @Override
     public List<ScreeningListDTO> getScreeningList(String filmId) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime after = now.plusDays(5);
+        LocalDateTime after = now.plusDays(5).withHour(0).withMinute(0).withSecond(0);
         List<Screening> findScreeningListByFilmId = screeningRepository.findAllByFilm_IdAndStartTimeBetween(Long.valueOf(filmId), now, after);
         return findScreeningListByFilmId.stream().map(ScreeningListDTO::of).collect(Collectors.toList());
     }

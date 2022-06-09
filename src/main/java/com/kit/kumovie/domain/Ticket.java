@@ -37,4 +37,17 @@ public class Ticket extends BaseTimeEntity {
     @Column(name = "seat_number", nullable = false)
     private String seatNumber; // 0,1;0,2;0,3;... (divide by ';')(count = seatCount)
 
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setScreening(Screening screening) {
+        this.screening = screening;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+
 }

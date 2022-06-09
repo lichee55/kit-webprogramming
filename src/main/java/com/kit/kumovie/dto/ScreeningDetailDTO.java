@@ -21,7 +21,7 @@ public class ScreeningDetailDTO {
 
     public static ScreeningDetailDTO of(Screening screening) {
 
-        List<String> collect = Arrays.stream(screening.getSeatStatus().split(",")).collect(Collectors.toList());
+        List<String> collect = List.of(screening.getSeatStatus().split(","));
         List<List<Boolean>> seatStatus = new ArrayList<>();
 
         for (int i = 0; i < screening.getTheater().getRowCount(); i++) {
