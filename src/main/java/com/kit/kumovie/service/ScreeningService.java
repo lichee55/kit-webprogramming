@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ScreeningService {
 
-    List<ScreeningListDTO> getScreeningList(String filmId);
+    List<ScreeningListDTO> getScreeningList(Long filmId);
 
     ScreeningDetailDTO getScreeningDetail(Long screeningId);
 }

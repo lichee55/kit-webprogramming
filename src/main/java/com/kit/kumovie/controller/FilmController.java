@@ -2,7 +2,9 @@ package com.kit.kumovie.controller;
 
 import com.kit.kumovie.common.ResponseForm;
 import com.kit.kumovie.dto.FilmListDTO;
+import com.kit.kumovie.service.FilmDetailDTO;
 import com.kit.kumovie.service.FilmService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @Controller
 @RequiredArgsConstructor
 @RestController
@@ -23,30 +23,48 @@ public class FilmController {
 
     private final FilmService filmService;
 
+    @Operation(summary = "전체 영화 리스트 조회", description = "전체 영화 리스트 조회")
     @GetMapping("/api/films")
-    public ResponseForm<Object> getFilmList(@RequestParam Map<String, String> params, Pageable pageable) {
+    public ResponseForm<Page<FilmListDTO>> getFilmList(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String actor,
+            Pageable pageable) {
+        ResponseForm<Page<FilmListDTO>> responseForm = new ResponseForm<>();
         try {
-            if (params.containsKey("actor")) {
-                return ResponseForm.builder().status("success").message("get film list by actor success").content(filmService.getFilmListByActor(pageable, params.get("actor"))).build();
+            if (title != null) {
+                responseForm.setData(filmService.getFilmListByTitle(pageable, title));
             }
-            if (params.containsKey("title")) {
-                return ResponseForm.builder().status("success").message("get film list by title success").content(filmService.getFilmListByTitle(pageable, params.get("title"))).build();
+            if (actor != null) {
+                responseForm.setData(filmService.getFilmListByActor(pageable, actor));
             }
-            Page<FilmListDTO> films = filmService.getFilmList(pageable);
-            return ResponseForm.builder().status("success").message("get film list success").content(films).build();
+            if (title == null && actor == null) {
+                responseForm.setData(filmService.getFilmList(pageable));
+            }
+            responseForm.setMessage("전체 영화 리스트 조회 성공");
+            responseForm.setStatus("success");
+            return responseForm;
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseForm.builder().status("fail").message(e.getMessage()).content(Boolean.FALSE).build();
+            responseForm.setMessage(e.getMessage());
+            responseForm.setStatus("fail");
+            return responseForm;
         }
     }
 
+    @Operation(summary = "영화 상세 조회", description = "영화 상세 조회")
     @GetMapping("/api/films/{filmId}")
-    public ResponseForm<Object> getFilmDetail(@PathVariable Long filmId, Pageable pageable) {
+    public ResponseForm<FilmDetailDTO> getFilmDetail(@PathVariable Long filmId) {
+        ResponseForm<FilmDetailDTO> responseForm = new ResponseForm<>();
         try {
-            return ResponseForm.builder().status("success").message("get film detail success").content(filmService.getFilmDetail(filmId)).build();
+            responseForm.setData(filmService.getFilmDetail(filmId));
+            responseForm.setMessage("영화 상세 조회 성공");
+            responseForm.setStatus("success");
+            return responseForm;
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseForm.builder().status("fail").message(e.getMessage()).content(Boolean.FALSE).build();
+            responseForm.setMessage(e.getMessage());
+            responseForm.setStatus("fail");
+            return responseForm;
         }
     }
 }

@@ -45,7 +45,7 @@ public class WebSecurityConfig {
             "/error",
             "/swagger-ui/**",
             "/swagger-resources/**",
-            "/v3/api-docs",
+            "/v3/**",
     };
 
     @Bean
