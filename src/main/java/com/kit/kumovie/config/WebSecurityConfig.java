@@ -42,7 +42,10 @@ public class WebSecurityConfig {
             "/api/signin",
             "/api/auth/refreshtoken",
             "/api/auth/accesstoken",
-            "/error"
+            "/error",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/v3/api-docs",
     };
 
     @Bean
