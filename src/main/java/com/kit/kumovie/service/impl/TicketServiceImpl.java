@@ -9,8 +9,11 @@ import com.kit.kumovie.domain.repository.MemberRepository;
 import com.kit.kumovie.domain.repository.ScreeningRepository;
 import com.kit.kumovie.domain.repository.TicketRepository;
 import com.kit.kumovie.dto.BuyTicketDTO;
+import com.kit.kumovie.dto.TicketListDTO;
 import com.kit.kumovie.service.TicketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,5 +66,10 @@ public class TicketServiceImpl implements TicketService {
 
         ticketRepository.save(ticket);
         screeningRepository.save(screening);
+    }
+
+    @Override
+    public Page<TicketListDTO> memberTicketList(Long memberId, Pageable pageable) {
+        return ticketRepository.findAllByMember_Id(memberId, pageable).map(TicketListDTO::of);
     }
 }
