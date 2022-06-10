@@ -38,7 +38,6 @@ public class TicketServiceImpl implements TicketService {
 
         Member userContext = Common.getUserContext();
         Screening screening = screeningRepository.findById(buyTicketDTO.getScreeningId()).orElseThrow(() -> new RuntimeException("상영 정보가 유효하지 않습니다."));
-        Integer rowCount = screening.getTheater().getRowCount();
         Integer colCount = screening.getTheater().getColCount();
 
         BigDecimal price = screening.getScreeningPrice();

@@ -1,6 +1,7 @@
 package com.kit.kumovie.controller;
 
 import com.kit.kumovie.common.ResponseForm;
+import com.kit.kumovie.dto.BuyTicketDTO;
 import com.kit.kumovie.dto.ScreeningDetailDTO;
 import com.kit.kumovie.dto.ScreeningListDTO;
 import com.kit.kumovie.service.ScreeningService;
@@ -30,18 +31,12 @@ public class TicketController {
     @GetMapping("/api/screening")
     public ResponseForm<List<ScreeningListDTO>> getScreeningList(
             @RequestParam Long filmId) {
-        ResponseForm<List<ScreeningListDTO>> responseForm = new ResponseForm<>();
         try {
             List<ScreeningListDTO> getScreenByFilmId = screeningService.getScreeningList(filmId);
-            responseForm.setData(getScreenByFilmId);
-            responseForm.setMessage("상영 정보 조회 성공");
-            responseForm.setStatus("success");
-            return responseForm;
+            return new ResponseForm<>("success", "상영 정보 리스트 조회 성공", getScreenByFilmId);
         } catch (Exception e) {
             e.printStackTrace();
-            responseForm.setMessage(e.getMessage());
-            responseForm.setStatus("fail");
-            return responseForm;
+            return new ResponseForm<>("fail", e.getMessage(), null);
         }
     }
 
@@ -49,18 +44,24 @@ public class TicketController {
     @Parameters(value = {@Parameter(name = "screeningId", description = "상영정보 PK", required = true, in = ParameterIn.PATH)})
     @GetMapping("/api/screening/{screeningId}")
     public ResponseForm<ScreeningDetailDTO> getScreeningDetail(@PathVariable Long screeningId) {
-        ResponseForm<ScreeningDetailDTO> responseForm = new ResponseForm<>();
         try {
             ScreeningDetailDTO screeningDetail = screeningService.getScreeningDetail(screeningId);
-            responseForm.setData(screeningDetail);
-            responseForm.setMessage("상영 정보 조회 성공");
-            responseForm.setStatus("success");
-            return responseForm;
+            return new ResponseForm<>("success", "상영 정보 상세 조회 성공", screeningDetail);
         } catch (Exception e) {
             e.printStackTrace();
-            responseForm.setMessage(e.getMessage());
-            responseForm.setStatus("fail");
-            return responseForm;
+            return new ResponseForm<>("fail", e.getMessage(), null);
+        }
+    }
+
+    @Operation(summary = "예매", description = "예매")
+    @PostMapping("/api/ticket")
+    public ResponseForm<Boolean> buyTicket(@RequestBody BuyTicketDTO buyTicketDTO) {
+        try {
+            ticketService.buyTicket(buyTicketDTO);
+            return new ResponseForm<>("success", "예매 성공", Boolean.TRUE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseForm<>("fail", e.getMessage(), null);
         }
     }
 }

@@ -25,36 +25,24 @@ public class AuthController {
     @Operation(summary = "로그인", description = "로그인")
     @GetMapping("/api/signin")
     public ResponseForm<SignInResultDTO> signIn(@RequestBody SignInDTO signInDTO) {
-        ResponseForm<SignInResultDTO> responseForm = new ResponseForm<>();
         try {
             SignInResultDTO tokens = authService.getToken(signInDTO);
-            responseForm.setData(tokens);
-            responseForm.setMessage("로그인 성공");
-            responseForm.setStatus("success");
-            return responseForm;
+            return new ResponseForm<>("success", "로그인 성공", tokens);
         } catch (Exception e) {
             e.printStackTrace();
-            responseForm.setMessage(e.getMessage());
-            responseForm.setStatus("fail");
-            return responseForm;
+            return new ResponseForm<>(e.getMessage(), "로그인 실패", null);
         }
     }
 
     @Operation(summary = "회원가입", description = "회원가입")
     @PostMapping("/api/signup")
     public ResponseForm<Boolean> signUp(@RequestBody SignUpDTO signUpDTO) {
-        ResponseForm<Boolean> responseForm = new ResponseForm<>();
         try {
             authService.addUser(signUpDTO);
-            responseForm.setData(Boolean.TRUE);
-            responseForm.setMessage("회원가입 성공");
-            responseForm.setStatus("success");
-            return responseForm;
+            return new ResponseForm<>("success", "회원가입 성공", Boolean.TRUE);
         } catch (Exception e) {
             e.printStackTrace();
-            responseForm.setMessage(e.getMessage());
-            responseForm.setStatus("fail");
-            return responseForm;
+            return new ResponseForm<>("fail", e.getMessage(), null);
         }
     }
 }

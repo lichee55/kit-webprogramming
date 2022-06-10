@@ -29,42 +29,32 @@ public class FilmController {
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String actor,
             Pageable pageable) {
-        ResponseForm<Page<FilmListDTO>> responseForm = new ResponseForm<>();
         try {
             if (title != null) {
-                responseForm.setData(filmService.getFilmListByTitle(pageable, title));
+                Page<FilmListDTO> filmListByTitle = filmService.getFilmListByTitle(pageable, title);
+                return new ResponseForm<>("success", "전체 영화 리스트 조회 성공", filmListByTitle);
             }
             if (actor != null) {
-                responseForm.setData(filmService.getFilmListByActor(pageable, actor));
+                Page<FilmListDTO> filmListByActor = filmService.getFilmListByActor(pageable, actor);
+                return new ResponseForm<>("success", "전체 영화 리스트 조회 성공", filmListByActor);
             }
-            if (title == null && actor == null) {
-                responseForm.setData(filmService.getFilmList(pageable));
-            }
-            responseForm.setMessage("전체 영화 리스트 조회 성공");
-            responseForm.setStatus("success");
-            return responseForm;
+            Page<FilmListDTO> filmList = filmService.getFilmList(pageable);
+            return new ResponseForm<>("success", "전체 영화 리스트 조회 성공", filmList);
         } catch (Exception e) {
             e.printStackTrace();
-            responseForm.setMessage(e.getMessage());
-            responseForm.setStatus("fail");
-            return responseForm;
+            return new ResponseForm<>("fail", e.getMessage(), null);
         }
     }
 
     @Operation(summary = "영화 상세 조회", description = "영화 상세 조회")
     @GetMapping("/api/films/{filmId}")
     public ResponseForm<FilmDetailDTO> getFilmDetail(@PathVariable Long filmId) {
-        ResponseForm<FilmDetailDTO> responseForm = new ResponseForm<>();
         try {
-            responseForm.setData(filmService.getFilmDetail(filmId));
-            responseForm.setMessage("영화 상세 조회 성공");
-            responseForm.setStatus("success");
-            return responseForm;
+            FilmDetailDTO filmDetail = filmService.getFilmDetail(filmId);
+            return new ResponseForm<>("success", "영화 상세 조회 성공", filmDetail);
         } catch (Exception e) {
             e.printStackTrace();
-            responseForm.setMessage(e.getMessage());
-            responseForm.setStatus("fail");
-            return responseForm;
+            return new ResponseForm<>("fail", e.getMessage(), null);
         }
     }
 }
