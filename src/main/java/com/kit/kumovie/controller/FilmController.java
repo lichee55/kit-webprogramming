@@ -2,6 +2,7 @@ package com.kit.kumovie.controller;
 
 import com.kit.kumovie.common.ResponseForm;
 import com.kit.kumovie.dto.FilmListDTO;
+import com.kit.kumovie.dto.FilmStatisticDTO;
 import com.kit.kumovie.service.FilmDetailDTO;
 import com.kit.kumovie.service.FilmService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,5 +57,18 @@ public class FilmController {
             e.printStackTrace();
             return new ResponseForm<>("fail", e.getMessage(), null);
         }
+    }
+
+    @Operation(summary = "영화 통계 조회", description = "영화 통계 조회")
+    @GetMapping("/api/films/statistics")
+    public ResponseForm<FilmStatisticDTO> getFilmStatistics(@RequestParam Long filmId) {
+        try {
+            FilmStatisticDTO filmStatistic = filmService.getFilmStatistic(filmId);
+            return new ResponseForm<>("success", "영화 통계 조회 성공", filmStatistic);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseForm<>("fail", e.getMessage(), null);
+        }
+
     }
 }

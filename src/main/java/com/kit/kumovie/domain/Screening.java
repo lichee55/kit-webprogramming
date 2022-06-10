@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "screenings")
@@ -47,9 +48,12 @@ public class Screening extends BaseTimeEntity {
     @JoinColumn(name = "theater_id", nullable = false)
     private Theater theater;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "film_id", nullable = false)
     private Film film;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "screening", cascade = CascadeType.ALL)
+    private List<Ticket> tickets;
 
     public void setSeatStatus(String seatStatus) {
         this.seatStatus = seatStatus;

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "films")
@@ -15,6 +16,19 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
+@NamedEntityGraphs(
+        value = {
+                @NamedEntityGraph(
+                        name = "Film.withScreenings",
+                        attributeNodes = @NamedAttributeNode(value = "screenings", subgraph = "Screening.withTickets"),
+                        subgraphs = {
+                                @NamedSubgraph(name = "Screening.withTickets", attributeNodes = @NamedAttributeNode(value = "tickets"))
+                        }
+                )
+        }
+)
+
 public class Film extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,5 +64,8 @@ public class Film extends BaseTimeEntity {
 
     @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
+
+    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<Screening> screenings;
 
 }
