@@ -25,4 +25,6 @@ public interface FilmService {
     void updateFilmComment(Long filmId, Long commentId, CommentDTO commentDTO);
 
     void deleteFilmComment(Long filmId, Long commentId);
+
+    void likeComment(Long filmId, Long commentId);
 }

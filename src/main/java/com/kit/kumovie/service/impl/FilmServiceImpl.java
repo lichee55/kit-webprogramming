@@ -20,6 +20,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
@@ -162,6 +163,9 @@ public class FilmServiceImpl implements FilmService {
         film.setSumRating(film.getSumRating() + comment.getRating());
         comment.setMember(member);
         comment.setFilm(film);
+        LocalDateTime now = LocalDateTime.now();
+        comment.setCreatedAt(now);
+        comment.setUpdatedAt(now);
         commentRepository.save(comment);
     }
 
@@ -176,6 +180,7 @@ public class FilmServiceImpl implements FilmService {
         film.setSumRating(film.getSumRating() - comment.getRating() + commentDTO.getRating());
         comment.setContent(commentDTO.getContent());
         comment.setRating(commentDTO.getRating());
+        comment.setUpdatedAt(LocalDateTime.now());
         commentRepository.save(comment);
     }
 
@@ -190,6 +195,23 @@ public class FilmServiceImpl implements FilmService {
         film.setSumRating(film.getSumRating() - comment.getRating());
         film.setCommentCount(film.getCommentCount() - 1);
         commentRepository.delete(comment);
+    }
+
+    @Override
+    @Transactional
+    public void likeComment(Long filmId, Long commentId) {
+        Optional<LikeComment> like = likeCommentRepository.findByMember_IdAndComment_Id(Common.getUserContext().getId(), commentId);
+        if (like.isPresent()) {
+            likeCommentRepository.delete(like.get());
+            return;
+        }
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+        Member member = memberRepository.findById(Common.getUserContext().getId()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        LikeComment likeComment = LikeComment.builder()
+                .member(member)
+                .comment(comment)
+                .build();
+        likeCommentRepository.save(likeComment);
     }
 
     private Long totalTicketCount() {

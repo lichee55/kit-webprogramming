@@ -16,6 +16,7 @@ public class WriteCommentDTO {
         return Comment.builder()
                 .content(writeCommentDTO.getContent())
                 .rating(writeCommentDTO.getRating())
+                .likeCount(0)
                 .build();
     }
 }

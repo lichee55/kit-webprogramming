@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        log.info("httpRequest.getRequestURI() : {}", httpRequest.getRequestURI());
+        log.info(httpRequest.getMethod() + " " + httpRequest.getRequestURI() + " " + httpRequest.getQueryString());
 
         String token = jwtTokenProvider.resolveToken(httpRequest);
         String refreshToken = jwtTokenProvider.resolveRefreshToken(httpRequest);

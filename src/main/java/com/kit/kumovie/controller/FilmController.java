@@ -79,6 +79,18 @@ public class FilmController {
         }
     }
 
+    @Operation(summary = "영화 댓글 좋아요", description = "영화 댓글 좋아요")
+    @PostMapping("/api/films/{filmId}/comments/{commentId}/like")
+    public ResponseForm<Boolean> likeComment(@PathVariable Long filmId, @PathVariable Long commentId) {
+        try {
+            filmService.likeComment(filmId, commentId);
+            return new ResponseForm<>("success", "영화 댓글 좋아요 성공", Boolean.TRUE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseForm<>("fail", e.getMessage(), null);
+        }
+    }
+
     @Operation(summary = "영화 댓글 작성", description = "영화 댓글 작성")
     @PostMapping("/api/films/{filmId}/comments/write")
     public ResponseForm<Boolean> writeFilmComment(@PathVariable Long filmId, @RequestBody WriteCommentDTO writeCommentDTO) {
