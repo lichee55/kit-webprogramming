@@ -19,6 +19,7 @@ import java.util.List;
 
 public class Screening extends BaseTimeEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "screening_id")
     private Long id;
 
@@ -28,14 +29,14 @@ public class Screening extends BaseTimeEntity {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
-    @Column(name = "screening_price", nullable = false, precision = 5, scale = 1)
+    @Column(name = "screening_price", nullable = false, precision = 6, scale = 1)
     private BigDecimal screeningPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_type", nullable = false)
     private DiscountType discountType;
 
-    @Column(name = "discount_value", precision = 5, scale = 2)
+    @Column(name = "discount_value", precision = 6, scale = 2)
     private BigDecimal discountValue;
 
     @Column(name = "seat_status", nullable = false)

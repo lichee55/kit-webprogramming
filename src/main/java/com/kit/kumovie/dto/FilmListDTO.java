@@ -30,6 +30,7 @@ public class FilmListDTO {
                 .director(film.getDirector())
                 .actor(film.getActor())
                 .thumbnail(film.getThumbnail())
+                .ticketRate(new BigDecimal(0))
                 .build();
     }
 }

@@ -1,11 +1,15 @@
 package com.kit.kumovie.service.impl;
 
+import com.kit.kumovie.domain.Film;
 import com.kit.kumovie.domain.Screening;
 import com.kit.kumovie.domain.repository.ScreeningRepository;
+import com.kit.kumovie.dto.FilmListDTO;
 import com.kit.kumovie.dto.ScreeningDetailDTO;
 import com.kit.kumovie.dto.ScreeningListDTO;
 import com.kit.kumovie.service.ScreeningService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,4 +37,5 @@ public class ScreeningServiceImpl implements ScreeningService {
         Screening findById = screeningRepository.findById(screeningId).orElseThrow(() -> new RuntimeException("상영 정보가 유효하지 않습니다."));
         return ScreeningDetailDTO.of(findById);
     }
+
 }

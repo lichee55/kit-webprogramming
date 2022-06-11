@@ -3,6 +3,7 @@ package com.kit.kumovie.dto;
 import com.kit.kumovie.domain.Screening;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Builder
+@Slf4j
 @Data
 public class ScreeningDetailDTO {
     private Long id;
@@ -23,17 +25,21 @@ public class ScreeningDetailDTO {
 
         List<String> collect = List.of(screening.getSeatStatus().split(","));
         List<List<Boolean>> seatStatus = new ArrayList<>();
+        Integer colCount = screening.getTheater().getColCount();
+        Integer rowCount = screening.getTheater().getRowCount();
 
-        for (int i = 0; i < screening.getTheater().getRowCount(); i++) {
-            List<Boolean> row = new ArrayList<>();
-            for (int j = 0; j < screening.getTheater().getColCount(); j++) {
-                if (collect.get(i).charAt(j) == '1') {
-                    row.add(Boolean.TRUE);
-                } else {
-                    row.add(Boolean.FALSE);
+        if (collect.size() > 0) {
+            for (int i = 0; i < rowCount; i++) {
+                List<Boolean> row = new ArrayList<>();
+                for (int j = 0; j < colCount; j++) {
+                    if (collect.get(i * colCount + j).equals("1")) {
+                        row.add(Boolean.TRUE);
+                    } else {
+                        row.add(Boolean.FALSE);
+                    }
                 }
+                seatStatus.add(row);
             }
-            seatStatus.add(row);
         }
 
         return ScreeningDetailDTO.builder()

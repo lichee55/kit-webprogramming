@@ -56,7 +56,7 @@ public class Film extends BaseTimeEntity {
     @Column(name = "actor", length = 50, nullable = true)
     private String actor;
 
-    @Column(name = "price", nullable = false, precision = 5, scale = 1)
+    @Column(name = "price", nullable = false, precision = 6, scale = 1)
     private BigDecimal price;
 
     @Column(name = "seat_count", nullable = false)
@@ -64,6 +64,12 @@ public class Film extends BaseTimeEntity {
 
     @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
+
+    @Column(name = "grade", nullable = false)
+    private String grade;
+
+    @Column(name = "genre", nullable = false)
+    private String genre;
 
     @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Screening> screenings;

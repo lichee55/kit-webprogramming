@@ -22,6 +22,9 @@ public class Theater extends BaseTimeEntity {
     @Column(name = "name", length = 30, nullable = false)
     private String name;
 
+    @Column(name = "floor_count", nullable = false)
+    private Integer floorCount;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = false)
     @JoinColumn(name = "cinema_id", nullable = false)
     private Cinema cinema;

@@ -46,6 +46,8 @@ public class WebSecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/v3/**",
+            "/api/films/**",
+            "/api/screening/**",
     };
 
     @Bean

@@ -16,6 +16,7 @@ public class ScreeningListDTO {
     private LocalTime startTime;
     private LocalTime endTime;
     private Integer restSeatCount;
+    private TheaterDTO theater;
 
     public static ScreeningListDTO of(Screening screening) {
         // restSeat 는 내부에서 계산할 수 없으므로 외부에서 계산해야 한다.
@@ -25,6 +26,7 @@ public class ScreeningListDTO {
                 .startTime(screening.getStartTime().toLocalTime())
                 .endTime(screening.getEndTime().toLocalTime())
                 .restSeatCount(screening.getRestSeatCount())
+                .theater(TheaterDTO.of(screening.getTheater()))
                 .build();
     }
 }

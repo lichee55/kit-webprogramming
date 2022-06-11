@@ -23,14 +23,14 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(summary = "로그인", description = "로그인")
-    @GetMapping("/api/signin")
+    @PostMapping("/api/signin")
     public ResponseForm<SignInResultDTO> signIn(@RequestBody SignInDTO signInDTO) {
         try {
             SignInResultDTO tokens = authService.getToken(signInDTO);
             return new ResponseForm<>("success", "로그인 성공", tokens);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseForm<>(e.getMessage(), "로그인 실패", null);
+            return new ResponseForm<>("fail", e.getMessage(), null);
         }
     }
 

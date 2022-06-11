@@ -38,6 +38,9 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(name = "gender", nullable = false, length = 10)
     private Gender gender;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role;

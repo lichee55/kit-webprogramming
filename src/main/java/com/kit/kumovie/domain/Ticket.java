@@ -23,7 +23,7 @@ public class Ticket extends BaseTimeEntity {
     @Column(name = "seat_count", nullable = false)
     private Integer seatCount;
 
-    @Column(name = "price", nullable = false, precision = 5, scale = 1)
+    @Column(name = "price", nullable = false, precision = 6, scale = 1)
     private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = false)

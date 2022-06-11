@@ -1,5 +1,6 @@
 package com.kit.kumovie.service;
 
+import com.kit.kumovie.dto.FilmDetailDTO;
 import com.kit.kumovie.dto.FilmListDTO;
 import com.kit.kumovie.dto.FilmStatisticDTO;
 import org.springframework.data.domain.Page;
@@ -9,9 +10,11 @@ public interface FilmService {
 
     Page<FilmListDTO> getFilmList(Pageable pageable);
 
-    Page<FilmListDTO> getFilmListByActor(Pageable pageable, String actor);
+    Page<FilmListDTO> getFilmListByActor(String actor, Pageable pageable);
 
-    Page<FilmListDTO> getFilmListByTitle(Pageable pageable, String title);
+    Page<FilmListDTO> getFilmListByTitle(String title, Pageable pageable);
+
+    Page<FilmListDTO> getNowFilmList(Pageable pageable);
 
     FilmDetailDTO getFilmDetail(Long id);
 

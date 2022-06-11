@@ -7,23 +7,29 @@ import com.kit.kumovie.domain.repository.FilmRepository;
 import com.kit.kumovie.domain.repository.TicketRepository;
 import com.kit.kumovie.dto.FilmListDTO;
 import com.kit.kumovie.dto.FilmStatisticDTO;
-import com.kit.kumovie.service.FilmDetailDTO;
+import com.kit.kumovie.dto.FilmDetailDTO;
 import com.kit.kumovie.service.FilmService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FilmServiceImpl implements FilmService {
 
     private final FilmRepository filmRepository;
@@ -31,20 +37,53 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Page<FilmListDTO> getFilmList(Pageable pageable) {
-        Page<Film> all = filmRepository.findAll(pageable);
-        return toDTOPageInsertTicketRate(all);
+        List<Film> all = filmRepository.findAllByReleaseDateDesc();
+
+        return listToPage(pageable, all);
     }
 
     @Override
-    public Page<FilmListDTO> getFilmListByActor(Pageable pageable, String actor) {
-        Page<Film> findByActor = filmRepository.findAllByActorContainsIgnoreCase(actor, pageable);
-        return toDTOPageInsertTicketRate(findByActor);
+    public Page<FilmListDTO> getFilmListByActor(String actor, Pageable pageable) {
+        List<Film> findByActor = filmRepository.findAllByActorContainsIgnoreCase(actor);
+        return listToPage(pageable, findByActor);
     }
 
     @Override
-    public Page<FilmListDTO> getFilmListByTitle(Pageable pageable, String title) {
-        Page<Film> findByTitle = filmRepository.findAllByTitleContainsIgnoreCase(title, pageable);
-        return toDTOPageInsertTicketRate(findByTitle);
+    public Page<FilmListDTO> getFilmListByTitle(String title, Pageable pageable) {
+        List<Film> findByTitle = filmRepository.findAllByTitleContainsIgnoreCase(title);
+        return listToPage(pageable, findByTitle);
+    }
+
+    @Override
+    public Page<FilmListDTO> getNowFilmList(Pageable pageable) {
+        List<Film> findByNowScreening = filmRepository.findAllByStartTimeAfter(LocalDateTime.now());
+        return listToPage(pageable, findByNowScreening);
+    }
+
+    private Page<FilmListDTO> listToPage(Pageable pageable, List<Film> findByNowScreening) {
+        Long totalTicketCount = totalTicketCount();
+        if (totalTicketCount == null || totalTicketCount == 0) {
+            List<FilmListDTO> collect = findByNowScreening.stream().map(FilmListDTO::of).collect(Collectors.toList());
+            int offset = pageable.getPageNumber() * pageable.getPageSize();
+            int pageEnd = Math.min(offset + pageable.getPageSize(), collect.size());
+            return new PageImpl<>(collect.subList(offset, pageEnd), pageable, collect.size());
+        }
+        List<FilmListDTO> collect1 = findByNowScreening.stream().map(film -> {
+            FilmListDTO of = FilmListDTO.of(film);
+            BigDecimal ticketRate = BigDecimal.valueOf(film.getSeatCount()).divide(BigDecimal.valueOf(totalTicketCount), MathContext.DECIMAL32);
+            of.setTicketRate(ticketRate);
+            return of;
+        }).collect(Collectors.toList());
+        if (pageable.getSort().toString().equals("")) {
+            collect1.sort((o1, o2) -> o2.getTicketRate().compareTo(o1.getTicketRate()));
+        } else if (pageable.getSort().toString().equals("ticketRate: DESC")) {
+            collect1.sort((o1, o2) -> o2.getTicketRate().compareTo(o1.getTicketRate()));
+        } else if (pageable.getSort().toString().equals("rating: DESC")) {
+            collect1.sort(((o1, o2) -> o2.getRating().compareTo(o1.getRating())));
+        }
+        int offset = pageable.getPageNumber() * pageable.getPageSize();
+        int pageEnd = Math.min((offset + pageable.getPageSize()), collect1.size());
+        return new PageImpl<>(collect1.subList(offset, pageEnd), pageable, collect1.size());
     }
 
     @Override
@@ -52,6 +91,10 @@ public class FilmServiceImpl implements FilmService {
         Film film = filmRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
         Long totalTicketCount = totalTicketCount();
         FilmDetailDTO of = FilmDetailDTO.of(film);
+        if (totalTicketCount == null || totalTicketCount == 0) {
+            of.setTicketRate(BigDecimal.ZERO);
+            return of;
+        }
         BigDecimal ticketRate = BigDecimal.valueOf(film.getSeatCount()).divide(BigDecimal.valueOf(totalTicketCount), MathContext.DECIMAL32);
         of.setTicketRate(ticketRate);
         return of;
@@ -59,8 +102,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public FilmStatisticDTO getFilmStatistic(Long filmId) {
-//        Film film = filmRepository.findByIdWithEntityGraph(filmId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
-        Film film = filmRepository.findByIdWithNamedEntityGraph(filmId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
+        Film film = filmRepository.findByIdWithEntityGraph(filmId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
+//        Film film = filmRepository.findByIdWithNamedEntityGraph(filmId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
 
         List<Member> ticketedMembers = new ArrayList<>();
 
@@ -82,6 +125,10 @@ public class FilmServiceImpl implements FilmService {
             ageCount[i]++;
         }
         int memberCount = ticketedMembers.size();
+        log.info("member count : {}", memberCount);
+        if (memberCount == 0) {
+            return new FilmStatisticDTO(BigDecimal.ZERO);
+        }
         BigDecimal maleRate = BigDecimal.valueOf(maleCount).divide(BigDecimal.valueOf(memberCount), MathContext.DECIMAL32);
         return FilmStatisticDTO.builder()
                 .maleRate(maleRate.multiply(BigDecimal.valueOf(100)))
@@ -96,7 +143,7 @@ public class FilmServiceImpl implements FilmService {
 
     private Page<FilmListDTO> toDTOPageInsertTicketRate(Page<Film> filmPage) {
         Long totalTicketCount = totalTicketCount();
-        if (totalTicketCount == 0) {
+        if (totalTicketCount == null || totalTicketCount == 0) {
             return filmPage.map(FilmListDTO::of);
         }
         return filmPage.map(film -> {

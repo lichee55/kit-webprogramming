@@ -1,4 +1,4 @@
-package com.kit.kumovie.service;
+package com.kit.kumovie.dto;
 
 import com.kit.kumovie.domain.Film;
 import lombok.Builder;
