@@ -49,5 +49,7 @@ public class Ticket extends BaseTimeEntity {
         this.price = price;
     }
 
-
+    public void setSeatCount(Integer seatCount) {
+        this.seatCount = seatCount;
+    }
 }

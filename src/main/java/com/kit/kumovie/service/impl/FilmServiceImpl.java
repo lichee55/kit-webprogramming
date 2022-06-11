@@ -54,8 +54,14 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    @Transactional
     public Page<FilmListDTO> getNowFilmList(Pageable pageable) {
         List<Film> findByNowScreening = filmRepository.findAllByStartTimeAfter(LocalDateTime.now());
+        findByNowScreening.forEach(film -> {
+            Integer seatCount = ticketRepository.getSeatCount(LocalDateTime.now(), film.getId());
+            film.setSeatCount(seatCount);
+            filmRepository.save(film);
+        });
         return listToPage(pageable, findByNowScreening);
     }
 
@@ -119,11 +125,7 @@ public class FilmServiceImpl implements FilmService {
 
         List<Member> ticketedMembers = new ArrayList<>();
 
-        film.getScreenings().forEach(sc -> {
-            sc.getTickets().forEach(t -> {
-                ticketedMembers.add(t.getMember());
-            });
-        });
+        film.getScreenings().forEach(sc -> sc.getTickets().forEach(t -> ticketedMembers.add(t.getMember())));
 
         long maleCount = 0L;
         long[] ageCount = new long[20];
@@ -200,13 +202,15 @@ public class FilmServiceImpl implements FilmService {
     @Override
     @Transactional
     public void likeComment(Long filmId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+        Member member = memberRepository.findById(Common.getUserContext().getId()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         Optional<LikeComment> like = likeCommentRepository.findByMember_IdAndComment_Id(Common.getUserContext().getId(), commentId);
         if (like.isPresent()) {
             likeCommentRepository.delete(like.get());
+            comment.setLikeCount(comment.getLikeCount() - 1);
             return;
         }
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
-        Member member = memberRepository.findById(Common.getUserContext().getId()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        comment.setLikeCount(comment.getLikeCount() + 1);
         LikeComment likeComment = LikeComment.builder()
                 .member(member)
                 .comment(comment)

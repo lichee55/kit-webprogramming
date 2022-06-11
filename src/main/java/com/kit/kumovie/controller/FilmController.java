@@ -42,7 +42,6 @@ public class FilmController {
         }
     }
 
-
     @Operation(summary = "상영 영화 리스트 조회", description = "상영 영화 리스트 조회")
     @GetMapping("/api/films/now")
     public ResponseForm<Page<FilmListDTO>> getNowFilmList(Pageable pageable) {
@@ -137,6 +136,5 @@ public class FilmController {
             e.printStackTrace();
             return new ResponseForm<>("fail", e.getMessage(), null);
         }
-
     }
 }

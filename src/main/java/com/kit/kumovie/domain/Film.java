@@ -50,10 +50,10 @@ public class Film extends BaseTimeEntity {
     @Column(name = "rating", nullable = false, precision = 3, scale = 1)
     private Long sumRating;
 
-    @Column(name = "director", length = 15, nullable = true)
+    @Column(name = "director", length = 15)
     private String director;
 
-    @Column(name = "actor", length = 50, nullable = true)
+    @Column(name = "actor", length = 50)
     private String actor;
 
     @Column(name = "price", nullable = false, precision = 6, scale = 1)
@@ -83,5 +83,9 @@ public class Film extends BaseTimeEntity {
 
     public void setSumRating(Long sumRating) {
         this.sumRating = sumRating;
+    }
+
+    public void setSeatCount(Integer seatCount) {
+        this.seatCount = seatCount;
     }
 }

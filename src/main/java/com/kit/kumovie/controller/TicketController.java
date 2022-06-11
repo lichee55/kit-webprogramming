@@ -57,6 +57,7 @@ public class TicketController {
     @PostMapping("/api/ticket")
     public ResponseForm<Boolean> buyTicket(@RequestBody BuyTicketDTO buyTicketDTO) {
         try {
+            log.info("buyTicketDTO: {}", buyTicketDTO);
             ticketService.buyTicket(buyTicketDTO);
             return new ResponseForm<>("success", "예매 성공", Boolean.TRUE);
         } catch (Exception e) {

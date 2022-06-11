@@ -52,4 +52,8 @@ public class Comment extends BaseTimeEntity {
     public void setRating(Integer rating) {
         this.rating = rating;
     }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
 }
