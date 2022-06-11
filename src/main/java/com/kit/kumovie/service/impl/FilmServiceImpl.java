@@ -1,13 +1,9 @@
 package com.kit.kumovie.service.impl;
 
-import com.kit.kumovie.domain.Film;
-import com.kit.kumovie.domain.Gender;
-import com.kit.kumovie.domain.Member;
-import com.kit.kumovie.domain.repository.FilmRepository;
-import com.kit.kumovie.domain.repository.TicketRepository;
-import com.kit.kumovie.dto.FilmListDTO;
-import com.kit.kumovie.dto.FilmStatisticDTO;
-import com.kit.kumovie.dto.FilmDetailDTO;
+import com.kit.kumovie.common.Common;
+import com.kit.kumovie.domain.*;
+import com.kit.kumovie.domain.repository.*;
+import com.kit.kumovie.dto.*;
 import com.kit.kumovie.service.FilmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +30,13 @@ public class FilmServiceImpl implements FilmService {
 
     private final FilmRepository filmRepository;
     private final TicketRepository ticketRepository;
+    private final CommentRepository commentRepository;
+    private final LikeCommentRepository likeCommentRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public Page<FilmListDTO> getFilmList(Pageable pageable) {
         List<Film> all = filmRepository.findAllByReleaseDateDesc();
-
         return listToPage(pageable, all);
     }
 
@@ -58,6 +56,19 @@ public class FilmServiceImpl implements FilmService {
     public Page<FilmListDTO> getNowFilmList(Pageable pageable) {
         List<Film> findByNowScreening = filmRepository.findAllByStartTimeAfter(LocalDateTime.now());
         return listToPage(pageable, findByNowScreening);
+    }
+
+    @Override
+    public Page<CommentDTO> getFilmComments(Long filmId, Pageable pageable) {
+        Page<Comment> findByFilmId = commentRepository.findAllByFilm_IdOrderByCreatedAt(filmId, pageable);
+        Long id = Common.getUserContext().getId();
+        List<LikeComment> findByUser = likeCommentRepository.findAllByMember_IdOrderByIdDesc(id);
+        return findByFilmId.map(comment -> {
+            CommentDTO of = CommentDTO.of(comment);
+            of.setIsMyComment(id.equals(comment.getMember().getId()));
+            of.setIsLiked(findByUser.stream().anyMatch(likeComment -> likeComment.getComment().getId().equals(comment.getId())));
+            return of;
+        });
     }
 
     private Page<FilmListDTO> listToPage(Pageable pageable, List<Film> findByNowScreening) {
@@ -141,17 +152,44 @@ public class FilmServiceImpl implements FilmService {
                 .build();
     }
 
-    private Page<FilmListDTO> toDTOPageInsertTicketRate(Page<Film> filmPage) {
-        Long totalTicketCount = totalTicketCount();
-        if (totalTicketCount == null || totalTicketCount == 0) {
-            return filmPage.map(FilmListDTO::of);
+    @Override
+    @Transactional
+    public void writeFilmComment(Long filmId, WriteCommentDTO writeCommentDTO) {
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
+        Member member = memberRepository.findById(Common.getUserContext().getId()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        Comment comment = WriteCommentDTO.toEntity(writeCommentDTO);
+        film.setCommentCount(film.getCommentCount() + 1);
+        film.setSumRating(film.getSumRating() + comment.getRating());
+        comment.setMember(member);
+        comment.setFilm(film);
+        commentRepository.save(comment);
+    }
+
+    @Override
+    @Transactional
+    public void updateFilmComment(Long filmId, Long commentId, CommentDTO commentDTO) {
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+        if (!comment.getMember().getId().equals(Common.getUserContext().getId())) {
+            throw new IllegalArgumentException("자신의 댓글만 수정할 수 있습니다.");
         }
-        return filmPage.map(film -> {
-            FilmListDTO of = FilmListDTO.of(film);
-            BigDecimal ticketRate = BigDecimal.valueOf(film.getSeatCount()).divide(BigDecimal.valueOf(totalTicketCount), MathContext.DECIMAL32);
-            of.setTicketRate(ticketRate);
-            return of;
-        });
+        film.setSumRating(film.getSumRating() - comment.getRating() + commentDTO.getRating());
+        comment.setContent(commentDTO.getContent());
+        comment.setRating(commentDTO.getRating());
+        commentRepository.save(comment);
+    }
+
+    @Override
+    @Transactional
+    public void deleteFilmComment(Long filmId, Long commentId) {
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 영화입니다."));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+        if (!comment.getMember().getId().equals(Common.getUserContext().getId())) {
+            throw new IllegalArgumentException("자신의 댓글만 삭제할 수 있습니다.");
+        }
+        film.setSumRating(film.getSumRating() - comment.getRating());
+        film.setCommentCount(film.getCommentCount() - 1);
+        commentRepository.delete(comment);
     }
 
     private Long totalTicketCount() {

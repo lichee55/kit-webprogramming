@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 @Data
@@ -26,7 +27,7 @@ public class FilmListDTO {
                 .id(film.getId())
                 .title(film.getTitle())
                 .releaseDate(film.getReleaseDate())
-                .rating(film.getRating())
+                .rating(film.getCommentCount() != 0 ? BigDecimal.valueOf(film.getSumRating()).divide(BigDecimal.valueOf(film.getCommentCount()), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO)
                 .director(film.getDirector())
                 .actor(film.getActor())
                 .thumbnail(film.getThumbnail())

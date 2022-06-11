@@ -23,11 +23,11 @@ public class Comment extends BaseTimeEntity {
     @Column(name = "content", length = 200, nullable = false)
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = false)
     @JoinColumn(name = "film_id", nullable = false)
     private Film film;
 
@@ -36,4 +36,20 @@ public class Comment extends BaseTimeEntity {
 
     @Column(name = "like_count", nullable = false)
     private Integer likeCount;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setFilm(Film film) {
+        this.film = film;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
 }

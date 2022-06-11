@@ -1,10 +1,13 @@
 package com.kit.kumovie.dto;
 
+import com.kit.kumovie.domain.DiscountType;
 import com.kit.kumovie.domain.Screening;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +18,13 @@ import java.util.stream.Collectors;
 @Data
 public class ScreeningDetailDTO {
     private Long id;
-    private String startTime;
-    private String endTime;
-    private String screeningPrice;
-    private String discountType;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private BigDecimal screeningPrice;
+    private DiscountType discountType;
+    private BigDecimal discountValue;
+    private Integer seatRowCount;
+    private Integer seatColCount;
     private List<List<Boolean>> seatStatus;
 
     public static ScreeningDetailDTO of(Screening screening) {
@@ -44,10 +50,13 @@ public class ScreeningDetailDTO {
 
         return ScreeningDetailDTO.builder()
                 .id(screening.getId())
-                .startTime(screening.getStartTime().toString())
-                .endTime(screening.getEndTime().toString())
-                .screeningPrice(screening.getScreeningPrice().toString())
-                .discountType(screening.getDiscountType().toString())
+                .startTime(screening.getStartTime().toLocalTime())
+                .endTime(screening.getEndTime().toLocalTime())
+                .screeningPrice(screening.getScreeningPrice())
+                .discountType(screening.getDiscountType())
+                .discountValue(screening.getDiscountValue())
+                .seatRowCount(rowCount)
+                .seatColCount(colCount)
                 .seatStatus(seatStatus)
                 .build();
     }

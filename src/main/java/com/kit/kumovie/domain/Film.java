@@ -48,7 +48,7 @@ public class Film extends BaseTimeEntity {
     private Integer movieDuration;
 
     @Column(name = "rating", nullable = false, precision = 3, scale = 1)
-    private BigDecimal rating;
+    private Long sumRating;
 
     @Column(name = "director", length = 15, nullable = true)
     private String director;
@@ -71,7 +71,17 @@ public class Film extends BaseTimeEntity {
     @Column(name = "genre", nullable = false)
     private String genre;
 
+    @Column(name = "comment_count", nullable = false)
+    private Integer commentCount;
+
     @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Screening> screenings;
 
+    public void setCommentCount(Integer commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public void setSumRating(Long sumRating) {
+        this.sumRating = sumRating;
+    }
 }
