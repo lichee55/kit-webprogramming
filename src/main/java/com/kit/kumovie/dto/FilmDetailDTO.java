@@ -21,6 +21,8 @@ public class FilmDetailDTO {
     private Integer movieDuration;
     private BigDecimal rating;
     private String director;
+    private String grade;
+    private String genre;
     private String actor;
     private BigDecimal ticketRate;
 

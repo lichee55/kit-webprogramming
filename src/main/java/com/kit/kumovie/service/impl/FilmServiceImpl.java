@@ -20,6 +20,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class FilmServiceImpl implements FilmService {
         List<Film> findByNowScreening = filmRepository.findAllByStartTimeAfter(LocalDateTime.now());
         findByNowScreening.forEach(film -> {
             Integer seatCount = ticketRepository.getSeatCount(LocalDateTime.now(), film.getId());
-            film.setSeatCount(seatCount);
+            film.setSeatCount(Objects.requireNonNullElse(seatCount, 0));
             filmRepository.save(film);
         });
         return listToPage(pageable, findByNowScreening);
@@ -68,6 +69,9 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Page<CommentDTO> getFilmComments(Long filmId, Pageable pageable) {
         Page<Comment> findByFilmId = commentRepository.findAllByFilm_IdOrderByCreatedAt(filmId, pageable);
+        if (Common.getUserContext() == null) {
+            return new PageImpl<>(findByFilmId.getContent().stream().map(CommentDTO::of).collect(Collectors.toList()), pageable, findByFilmId.getTotalElements());
+        }
         Long id = Common.getUserContext().getId();
         List<LikeComment> findByUser = likeCommentRepository.findAllByMember_IdOrderByIdDesc(id);
         return findByFilmId.map(comment -> {
@@ -80,6 +84,7 @@ public class FilmServiceImpl implements FilmService {
 
     private Page<FilmListDTO> listToPage(Pageable pageable, List<Film> findByNowScreening) {
         Long totalTicketCount = totalTicketCount();
+        log.info("pageable.sort: {}", pageable.getSort().toString());
         if (totalTicketCount == null || totalTicketCount == 0) {
             List<FilmListDTO> collect = findByNowScreening.stream().map(FilmListDTO::of).collect(Collectors.toList());
             int offset = pageable.getPageNumber() * pageable.getPageSize();
@@ -93,10 +98,13 @@ public class FilmServiceImpl implements FilmService {
             return of;
         }).collect(Collectors.toList());
         if (pageable.getSort().toString().equals("")) {
+            log.info("no sort");
             collect1.sort((o1, o2) -> o2.getTicketRate().compareTo(o1.getTicketRate()));
         } else if (pageable.getSort().toString().equals("ticketRate: DESC")) {
+            log.info("ticketRate: DESC");
             collect1.sort((o1, o2) -> o2.getTicketRate().compareTo(o1.getTicketRate()));
         } else if (pageable.getSort().toString().equals("rating: DESC")) {
+            log.info("rating: DESC");
             collect1.sort(((o1, o2) -> o2.getRating().compareTo(o1.getRating())));
         }
         int offset = pageable.getPageNumber() * pageable.getPageSize();

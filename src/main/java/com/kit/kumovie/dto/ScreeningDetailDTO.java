@@ -48,6 +48,21 @@ public class ScreeningDetailDTO {
             }
         }
 
+        if (screening.getDiscountType() == DiscountType.RATE) {
+            BigDecimal subtract = BigDecimal.ONE.subtract(screening.getDiscountValue().multiply(new BigDecimal("0.01")));
+            return ScreeningDetailDTO.builder()
+                    .id(screening.getId())
+                    .startTime(screening.getStartTime().toLocalTime())
+                    .endTime(screening.getEndTime().toLocalTime())
+                    .screeningPrice(screening.getScreeningPrice())
+                    .discountType(screening.getDiscountType())
+                    .discountValue(subtract)
+                    .seatRowCount(rowCount)
+                    .seatColCount(colCount)
+                    .seatStatus(seatStatus)
+                    .build();
+        }
+
         return ScreeningDetailDTO.builder()
                 .id(screening.getId())
                 .startTime(screening.getStartTime().toLocalTime())

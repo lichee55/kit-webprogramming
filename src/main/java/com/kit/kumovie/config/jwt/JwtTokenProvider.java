@@ -32,7 +32,7 @@ public class JwtTokenProvider {
     private String secretKey;
 
     private final UserDetailsService userDetailsService;
-    private final Long tokenExpirationTime = 1000L * 60 * 30;
+    private final Long tokenExpirationTime = 1000L * 60 * 60 * 3;
     private final Long refreshTokenExpirationTime = 1000L * 60 * 60 * 24;
     private final MemberRepository memberRepository;
 

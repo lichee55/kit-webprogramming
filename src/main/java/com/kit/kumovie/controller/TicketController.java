@@ -53,6 +53,18 @@ public class TicketController {
         }
     }
 
+    @Operation(summary = "극장의 상영 영화 조회", description = "극장의 상영 영화 조회")
+    @GetMapping("/api/screening/cinema/{cinemaId}")
+    public ResponseForm<List<ScreeningListDTO>> getScreeningListByTheaterId(@PathVariable Long cinemaId) {
+        try {
+            List<ScreeningListDTO> getScreenByTheaterId = screeningService.getScreeningListByTheaterId(cinemaId);
+            return new ResponseForm<>("success", "극장의 상영 영화 조회 성공", getScreenByTheaterId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseForm<>("fail", e.getMessage(), null);
+        }
+    }
+
     @Operation(summary = "예매", description = "예매")
     @PostMapping("/api/ticket")
     public ResponseForm<Boolean> buyTicket(@RequestBody BuyTicketDTO buyTicketDTO) {

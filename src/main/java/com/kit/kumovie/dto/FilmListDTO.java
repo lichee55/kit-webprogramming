@@ -18,6 +18,9 @@ public class FilmListDTO {
     private String director;
     private String actor;
     private String thumbnail;
+    private String grade;
+    private String genre;
+    private Integer runningTime;
 
     private BigDecimal ticketRate;
 
@@ -30,8 +33,11 @@ public class FilmListDTO {
                 .rating(film.getCommentCount() != 0 ? BigDecimal.valueOf(film.getSumRating()).divide(BigDecimal.valueOf(film.getCommentCount()), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO)
                 .director(film.getDirector())
                 .actor(film.getActor())
+                .grade(film.getGrade())
+                .genre(film.getGenre())
                 .thumbnail(film.getThumbnail())
                 .ticketRate(new BigDecimal(0))
+                .runningTime(film.getMovieDuration())
                 .build();
     }
 }

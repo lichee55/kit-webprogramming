@@ -19,7 +19,7 @@ public class LikeComment {
     @Column(name = "like_comment_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "comment_id", nullable = false)
     private Comment comment;
 

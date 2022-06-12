@@ -60,6 +60,9 @@ public class TicketServiceImpl implements TicketService {
         ticket.setCreatedAt(now);
         ticket.setUpdatedAt(now);
         Integer seatCount = ticketRepository.getSeatCount(now, film.getId());
+        if (seatCount == null || seatCount == 0) {
+            seatCount = 0;
+        }
         film.setSeatCount(seatCount);
 
         List<String> seatStatus = Arrays.stream(screening.getSeatStatus().split(",")).collect(Collectors.toList());
@@ -77,6 +80,6 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Page<TicketListDTO> memberTicketList(Long memberId, Pageable pageable) {
-        return ticketRepository.findAllByMember_Id(memberId, pageable).map(TicketListDTO::of);
+        return ticketRepository.findAllByMember_IdOrderByCreatedAtDesc(memberId, pageable).map(TicketListDTO::of);
     }
 }

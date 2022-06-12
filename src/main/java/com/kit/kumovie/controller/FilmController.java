@@ -54,6 +54,7 @@ public class FilmController {
         }
     }
 
+
     @Operation(summary = "영화 상세 조회", description = "영화 상세 조회")
     @GetMapping("/api/films/{filmId}")
     public ResponseForm<FilmDetailDTO> getFilmDetail(@PathVariable Long filmId) {

@@ -63,4 +63,12 @@ public class Screening extends BaseTimeEntity {
     public void setRestSeatCount(Integer restSeatCount) {
         this.restSeatCount = restSeatCount;
     }
+
+    public void setDiscountType(DiscountType discountType) {
+        this.discountType = discountType;
+    }
+
+    public void setDiscountValue(BigDecimal discountValue) {
+        this.discountValue = discountValue;
+    }
 }

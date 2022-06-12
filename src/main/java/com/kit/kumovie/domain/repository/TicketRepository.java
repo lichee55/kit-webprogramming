@@ -13,7 +13,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query(value = "select sum(t.seatCount) from Ticket t where (t.screening.startTime >= ?1) ")
     Long getTotalTicketCount(LocalDateTime startTime);
 
-    Page<Ticket> findAllByMember_Id(Long memberId, Pageable pageable);
+    Page<Ticket> findAllByMember_IdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
 
     @Query(value = "select sum(t.seatCount) from Ticket t where (t.screening.startTime >= ?1) and (t.screening.film" +
             ".id = ?2)")
